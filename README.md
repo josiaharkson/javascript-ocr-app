@@ -5,13 +5,14 @@ See [https://tesseract.projectnaptha.com/](https://tesseract.projectnaptha.com/)
 
 The app uses the Next.js React Framework (https://nextjs.org/)
 
-## Install
+## You can view a live demo over at https://testappyy.herokuapp.com/
 
-- npm install
+## To get the frontend running locally:
 
-## Run
-
-- npm run dev
+- git clone this repo
+- `npm install` the required dependencies
+- `npm run dev` to start the local server
+- open http://localhost:3000 in your web browser
 
 ## Support
 
