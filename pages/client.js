@@ -2,7 +2,6 @@ import React from "react";
 import Head from "next/head";
 import Link from "next/link";
 
-import axios from "axios";
 import PropTypes from "prop-types";
 import { createWorker } from "tesseract.js";
 
@@ -111,40 +110,15 @@ function Index(props) {
   };
 
   const uploadHandler = async () => {
+    // Assuming only image
+    var thisData = file;
+    var reader = new FileReader();
+    var url = reader.readAsDataURL(thisData);
+
+    reader.onloadend = function (e) {
+      setImgData([reader.result]);
+    };
     setDisabled(true);
-
-    if (!file || !fileName) {
-      setDisabled(false);
-
-      return console.log("Please select an image");
-    }
-    const formData = new FormData();
-    formData.append("photo", file);
-
-    try {
-      const res = await axios.post("/api/general/image", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-
-        onUploadProgress: (progressEvent) => {
-          console.log(222222, progressEvent);
-          setProgress((progressEvent.loaded / progressEvent.total) * 100);
-          if (progressEvent.loaded === progressEvent.total)
-            setLoadStatus("Loading...");
-        },
-      });
-      if (res.data.success) {
-        setContentType(res.data.contentType);
-        setImgData(res.data.data);
-        setLoadStatus("");
-        setDisabled(false);
-      }
-    } catch (e) {
-      console.log(222222222222, e);
-      console.log("Error 566 occured");
-      setDisabled(false);
-    }
   };
 
   const scanOCrImg = async () => {
@@ -166,20 +140,17 @@ function Index(props) {
       },
     });
 
-    // return console.log("imgData22222222", typeof imgData);
     try {
       await worker.load();
       await worker.loadLanguage("eng");
       await worker.initialize("eng");
       const {
         data: { text },
-      } = await worker.recognize(imgData.data);
+      } = await worker.recognize(file);
       setOcr(text);
-      setDisabled(false);
     } catch (e) {
       console.log(2222222, e);
       setOcr("Failed to scan image");
-      setDisabled(false);
     }
   };
 
@@ -213,8 +184,7 @@ function Index(props) {
         color="primary"
         onClick={handleClick}
         style={{ marginLeft: 10 }}
-        disabled={!imgData || disabled || ocr}
-        role="presentation"
+        disabled={Boolean(!imgData) || Boolean(ocr)}
       >
         <span className="btnspan"> scan(OCR) </span>
       </Button>
@@ -262,24 +232,10 @@ function Index(props) {
             <Button
               variant="outlined"
               onClick={() => uploadHandler()}
-              disabled={disabled || progress === 100}
+              disabled={disabled}
               className={classes.btn}
             >
-              {loadStatus ? (
-                <>
-                  {loadStatus} <CircularProgress />
-                </>
-              ) : (
-                <>
-                  {progress === 100 ? "Loaded " : "Load Image"}
-
-                  <CircularProgressWithLabel
-                    variant="static"
-                    value={progress}
-                    className={classes.btn}
-                  />
-                </>
-              )}
+              Load Image
             </Button>
             <ScrollDown {...props} />
           </div>
@@ -288,12 +244,7 @@ function Index(props) {
         <div className="resultsDiv">
           <Paper className={classes.paperResults} elevation={2}>
             {imgData ? (
-              <img
-                src={`data:${contentType};base64,${Buffer.from(
-                  imgData
-                ).toString("base64")}`}
-                className="resultsDivImg"
-              />
+              <img src={imgData} className="resultsDivImg" />
             ) : (
               <div style={{ width: "100%", height: "100%", padding: 20 }}>
                 <Skeleton />

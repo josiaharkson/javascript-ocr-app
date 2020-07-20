@@ -5,6 +5,7 @@ const port = parseInt(process.env.PORT, 10) || 3000;
 const dev = process.env.NODE_ENV !== "production";
 const nextApp = next({ dev });
 const handle = nextApp.getRequestHandler();
+const fileupload = require("express-fileupload");
 
 nextApp.prepare().then(() => {
   // instantiate express
@@ -13,6 +14,7 @@ nextApp.prepare().then(() => {
   // use middlewares
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(fileupload()); // handles file upload
 
   //General Routes
   app.use("/api/general", require("./myServer/routes/api/generals"));

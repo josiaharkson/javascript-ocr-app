@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { createWorker } = require("tesseract.js");
 
-// SAVE IMAGE AND OCR
+// Load Image and OCR
 router.post("/ocrimage", async (req, res) => {
   // assign file from request to a constant
   const file = req.files.photo;
@@ -22,5 +22,29 @@ router.post("/ocrimage", async (req, res) => {
       success: true,
       text,
     });
-  } catch (e) {}
+  } catch (e) {
+    // console.log(e)
+  }
 });
+
+// // Load Image and send back to client
+// router.post("/image", async (req, res) => {
+//   // assign file from request to a constant
+//   const file = req.files.photo;
+
+//   const data = file.data;
+//   const mimetype = file.mimetype;
+
+//   try {
+//     return res.json({
+//       success: true,
+//       message: "image upload successful",
+//       data,
+//       contentType: mimetype,
+//     });
+//   } catch (e) {
+//     // console.log(e)
+//   }
+// });
+
+module.exports = router;

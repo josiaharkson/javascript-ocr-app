@@ -81,20 +81,14 @@ function Index(props) {
 
   const [file, setFile] = React.useState("");
   const [fileName, setFileName] = React.useState("");
-  const [progress, setProgress] = React.useState(0);
 
   const [imgData, setImgData] = React.useState(null);
-  const [contentType, setContentType] = React.useState("");
 
   const [ocr, setOcr] = React.useState("");
   const [disabled, setDisabled] = React.useState(false);
 
-  const [loadStatus, setLoadStatus] = React.useState("");
-
   const onChangeFile = (e) => {
-    setProgress(0);
     setImgData(null);
-    setContentType("");
     setOcr("");
     setDisabled(false);
     if (e.target.files[0]) {
@@ -104,38 +98,15 @@ function Index(props) {
   };
 
   const uploadHandler = async () => {
+    // Assuming only image
+    var thisData = file;
+    var reader = new FileReader();
+    var url = reader.readAsDataURL(thisData);
+
+    reader.onloadend = function (e) {
+      setImgData([reader.result]);
+    };
     setDisabled(true);
-
-    if (!file || !fileName) {
-      setDisabled(false);
-
-      return console.log("Please select an image");
-    }
-    const formData = new FormData();
-    formData.append("photo", file);
-
-    try {
-      const res = await axios.post("/api/general/image", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-
-        onUploadProgress: (progressEvent) => {
-          setProgress((progressEvent.loaded / progressEvent.total) * 100);
-          if (progressEvent.loaded === progressEvent.total)
-            setLoadStatus("Loading...");
-        },
-      });
-      if (res.data.success) {
-        setContentType(res.data.contentType);
-        setImgData(res.data.data);
-        setLoadStatus("");
-        setDisabled(false);
-      }
-    } catch (e) {
-      console.log("Error 566 occured");
-      setDisabled(false);
-    }
   };
 
   const scanOCrImg = async () => {
@@ -161,18 +132,15 @@ function Index(props) {
       });
       if (res.data.success) {
         if (res.data.text) setOcr(res.data.text);
-        setDisabled(false);
       }
     } catch (e) {
-      console.log(222222222222, e);
       console.log("Error 566 occured");
-      setDisabled(false);
     }
   };
 
   function ScrollDown(props) {
-    const { children, window } = props;
-    const classes = useStyles();
+    const { window } = props;
+
     // Note that you normally won't need to set the window ref as useScrollTrigger
     // will default to window.
     // This is only being set here because the demo is in an iframe.
@@ -198,9 +166,8 @@ function Index(props) {
         variant="contained"
         color="primary"
         onClick={handleClick}
-        role="presentation"
         style={{ marginLeft: 10 }}
-        disabled={!imgData || disabled || ocr}
+        disabled={Boolean(!imgData) || Boolean(ocr)}
       >
         <span className="btnspan"> scan(OCR) </span>
       </Button>
@@ -224,7 +191,6 @@ function Index(props) {
         </Button>
       </Link>
       <div className="root">
-        <ScrollDown {...props}>ssssssssssssssssssssssss</ScrollDown>
         <div className="header"> Welocome to Server - OCR Wiz JavaScript</div>
 
         <div className="header2">Select a photo you want to OCR below.</div>
@@ -249,27 +215,12 @@ function Index(props) {
             <Button
               variant="outlined"
               onClick={() => uploadHandler()}
-              disabled={disabled || progress === 100}
+              disabled={disabled}
               className={classes.btn}
             >
-              {loadStatus ? (
-                <>
-                  {loadStatus} <CircularProgress />
-                </>
-              ) : (
-                <>
-                  <span className="btnspan">
-                    {progress === 100 ? "Loaded " : "Load Image"}
-                  </span>
-
-                  <CircularProgressWithLabel
-                    variant="static"
-                    value={progress}
-                    className={classes.btn}
-                  />
-                </>
-              )}
+              Load Image
             </Button>
+
             <ScrollDown {...props} />
           </div>
         </form>
@@ -277,12 +228,7 @@ function Index(props) {
         <div className="resultsDiv">
           <Paper className={classes.paperResults} elevation={2}>
             {imgData ? (
-              <img
-                src={`data:${contentType};base64,${Buffer.from(
-                  imgData
-                ).toString("base64")}`}
-                className="resultsDivImg"
-              />
+              <img src={imgData} className="resultsDivImg" />
             ) : (
               <div style={{ width: "100%", height: "100%", padding: 20 }}>
                 <Skeleton />
