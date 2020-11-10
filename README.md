@@ -1,6 +1,6 @@
 # OCR Flask App JavaScript
 
-This project contains an OCR Flask app written in Javascript that uses the tesseract.ocr OCR engine.
+This project contains an OCR app written in Javascript that uses the tesseract.ocr OCR engine.
 See [https://tesseract.projectnaptha.com/](https://tesseract.projectnaptha.com/) for tesseract.js documentation.
 
 The app uses the Next.js React Framework (https://nextjs.org/)
